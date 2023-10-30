@@ -1,15 +1,15 @@
 ### Prerequisites
 
 - Install AWS Cli
-- Create AWS user and AWS profile
+- Create AWS user and AWS profile in your machine
 - Install CDK
 - Create a Bootstrap Stack if this is your first cdk project in this account / region
-
-- In order to call Amazon Bedrock Models for the first time, you'll need to enable model access in Bedrock Console.
 
 ```sh
 cdk bootstrap aws://{your_aws_account}/{region}
 ```
+
+- In order to call Amazon Bedrock Models for the first time, you'll need to enable model access in Bedrock Console.
 
 ### Setup
 
