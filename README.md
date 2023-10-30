@@ -18,7 +18,7 @@ Clone this repo:
 
 ```sh
 git clone https://github.com/ensamblador/chat-borrador-constitucional-2023.git
-cd chat-borrador-constitucional-2023.git
+cd chat-borrador-constitucional-2023
 ```
 
 Activate virtual environment:
