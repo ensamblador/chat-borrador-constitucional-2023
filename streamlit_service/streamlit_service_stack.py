@@ -18,7 +18,7 @@ class StreamlitServiceStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
         self.create_ecs_streamlit_app()
-        #self.create_ecs_CICD()
+        # self.create_ecs_CICD()
 
 
     def create_ecs_streamlit_app(self):

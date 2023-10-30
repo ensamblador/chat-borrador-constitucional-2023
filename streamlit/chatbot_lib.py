@@ -12,12 +12,12 @@ from langchain.prompts import PromptTemplate
 
 model_kwargs = { 
     "max_tokens_to_sample": 1024, 
-    "temperature": 0, 
-    "top_p": 0.9, 
+    "temperature": 0.0, 
+    "top_p": 0.5, 
     "stop_sequences": ["Human:"]
 }
 
-default_model_id = "anthropic.claude-instant-v1"
+default_model_id = "anthropic.claude-v2"
 bedrock_base_kwargs = dict(model_id=default_model_id, model_kwargs= model_kwargs)
 # react_agent_llm = Bedrock(**bedrock_base_kwargs)
 
@@ -33,7 +33,9 @@ retriever=vectordb.as_retriever(search_type = "mmr", similarity_top_k=8)
 
 template = """
 You are a constitutional law assitant who answers questions to users (chilean citizens) about the new constitutional draft to be voted in december 17th 2023.
-Use the following pieces of context to answer the question at the end. Provide page number, article and letter if it is part of the answer.
+(when asked for the source, provide the following link https://www.procesoconstitucional.cl/wp-content/uploads/2023/10/Texto-aprobado-Consejo-Constitucional_06.10.23.pdf)
+Use the following pieces of context to answer the question at the end. Provide page number, article and letter if it is part of the answer. 
+Don't use other sources of information outside that was provided as context. Don't user your prior knowledge about laws. Don't make up the answer using your intrinsic knowledge.
 If you don't know the answer, please propose a new question rephrasing, don't try to make up an answer. 
 If the user doesn't ask a specific question (like greetings, goodbyes or thanking you) just reply the casual conversation. 
 Never take a stand about approving or rejecting the draft, invite the user to read the draft and make his/her own informed opinion.
