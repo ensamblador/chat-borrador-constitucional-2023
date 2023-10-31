@@ -3,6 +3,7 @@ from langchain.embeddings import BedrockEmbeddings
 from langchain.chains import ConversationalRetrievalChain
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import LLMChainExtractor
+from langchain.chains import RetrievalQA
 
 
 from langchain.memory import ConversationSummaryBufferMemory
@@ -25,7 +26,7 @@ bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v1")
 
 persist_directory = 'docs/chroma/'
 vectordb = Chroma(persist_directory=persist_directory, embedding_function=bedrock_embeddings)
-retriever=vectordb.as_retriever(search_type = "mmr", similarity_top_k=8)
+retriever=vectordb.as_retriever(search_type = "mmr",  search_kwargs={"k": 10})
 
 # compressor = LLMChainExtractor.from_llm(react_agent_llm)
 # compression_retriever = ContextualCompressionRetriever(base_compressor=compressor, base_retriever=retriever)
@@ -44,17 +45,49 @@ Always validate at the end if the answer was helpful to the user.
 {context}
 Question: {question}
 Helpful Answer:"""
-QA_CHAIN_PROMPT = PromptTemplate(input_variables=["context", "question"],template=template,)
+
+
+template = """
+
+Eres un asistente de derecho constitucional que responde preguntas a los usuarios (ciudadanos chilenos) sobre el documento borrador constitucional a votarse el 17 de diciembre de 2023.
+(cuando se le solicite la fuente, proporcione el siguiente enlace https://www.procesoconstitucional.cl/wp-content/uploads/2023/10/Texto-aprobado-Consejo-Constitucional_06.10.23.pdf)
+
+Utilice las siguientes piezas de contexto encerradas en triple hashtag para responder la pregunta al final.
+
+Si la respuesta no esta en el contexto, no utilices otras fuentes de información fuera de la proporcionada como contexto, no utilices tus conocimientos previos sobre las leyes. 
+
+Si no sabe la respuesta, no intente inventar una respuesta, mejor proponga una nueva reformulación de la pregunta.
+
+Si el usuario no hace una pregunta específica (como saludos, despedidas o agradecimientos), simplemente responda la conversación informal.
+
+Nunca tomes una posición sobre aprobar o rechazar el borrador, invita al usuario a leer el borrador y formar su propia opinión informada.
+Valide siempre al final si la respuesta fue útil para el usuario.
+
+###{context}###
+
+Question: {question}
+Helpful Answer:"""
+
+
+promp_template = """
+Responde a la siguiente pregunta tan preciso como sea posible empleando el contexto encerrado por ##, 
+Nunca tomes una posición sobre aprobar o rechazar el borrador, invita al usuario a leer el borrador y formar su propia opinión informada.
+Los documentos de contexto provienende  https://www.procesoconstitucional.cl/wp-content/uploads/2023/10/Texto-aprobado-Consejo-Constitucional_06.10.23.pdf
+
+Si la respuesta no esta contenida en el contexto o si el contexto esta vacio responde "No lo se".
+
+##{context}##
+
+Question:{question}
+"""
+QA_CHAIN_PROMPT = PromptTemplate(input_variables=["context", "question"],template=promp_template)
+
+#QA_CHAIN_PROMPT = PromptTemplate(input_variables=["context", "question"],template=template,)
 
 
 
-def get_llm(streaming_callback=None, invocation_kwargs=None, model_id=None):
+def get_llm(streaming_callback=None):
     
-    this_model_id = model_id if model_id else default_model_id
-
-    bedrock_base_kwargs = dict(model_id=this_model_id, model_kwargs= model_kwargs)
-    if invocation_kwargs: 
-        bedrock_base_kwargs = dict(model_id=this_model_id, model_kwargs= {**model_kwargs, **invocation_kwargs})
 
     new_kwargs = dict(**bedrock_base_kwargs)
 
@@ -77,10 +110,19 @@ def get_memory():
 
 
 
-def get_chat_response(prompt, memory, streaming_callback=None,invocation_kwargs=None, model_id= None):
+def get_chat_response(prompt, memory, streaming_callback=None):
     
-    llm = get_llm(streaming_callback, invocation_kwargs, model_id) 
 
+    llm = get_llm(streaming_callback) 
+
+
+    qa_chain = RetrievalQA.from_chain_type(
+        llm,
+        #return_source_documents=True,
+        verbose=True, 
+        retriever=retriever
+    )
+    """
     qa = ConversationalRetrievalChain.from_llm(
         llm,
         verbose=True,
@@ -90,4 +132,6 @@ def get_chat_response(prompt, memory, streaming_callback=None,invocation_kwargs=
     qa.combine_docs_chain.llm_chain.prompt = QA_CHAIN_PROMPT
 
     return qa.run({"question": prompt})
+    """
+    return qa_chain.run({"query": prompt})
 
