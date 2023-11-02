@@ -1,10 +1,38 @@
+import os
 import streamlit as st #all streamlit commands will be available through the "st" alias
 import chatbot_lib as glib #reference to local lib script
 from langchain.callbacks import StreamlitCallbackHandler
 
+# https://github.com/pop-srw/streamlit-cognito-auth
+from streamlit_cognito_auth import CognitoAuthenticator
+
 
 st.set_page_config(page_title="Amazon Bedrock") #HTML title
+
+
+pool_id = os.environ.get("POOL_ID")
+app_client_id = os.environ.get("APP_CLIENT_ID")
+app_client_secret = os.environ.get("APP_CLIENT_SECRET")
+
+authenticator = CognitoAuthenticator(
+    pool_id=pool_id,
+    app_client_secret=app_client_secret,
+    app_client_id=app_client_id,
+)
+
+is_logged_in = authenticator.login()
+if not is_logged_in:
+    st.stop()
+
+
+def logout():
+    authenticator.logout()
+
 st.markdown("## Chatea con el Borrador de Constitucion") #page title
+
+with st.sidebar:
+    st.button("Logout", "logout_btn", on_click=logout)
+
 
 
 st.sidebar.markdown("""# Hola

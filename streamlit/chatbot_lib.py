@@ -71,8 +71,10 @@ Helpful Answer:"""
 
 promp_template = """
 Responde a la siguiente pregunta tan preciso como sea posible empleando el contexto encerrado por ##, 
+Las preguntas tienen que ver con la nueva propuesta constucional a votarse el 17 de Diciembre de 2023, 
+Los documentos de contexto provienen del borrador  https://www.procesoconstitucional.cl/wp-content/uploads/2023/10/Texto-aprobado-Consejo-Constitucional_06.10.23.pdf
+
 Nunca tomes una posición sobre aprobar o rechazar el borrador, invita al usuario a leer el borrador y formar su propia opinión informada.
-Los documentos de contexto provienende  https://www.procesoconstitucional.cl/wp-content/uploads/2023/10/Texto-aprobado-Consejo-Constitucional_06.10.23.pdf
 
 Si la respuesta no esta contenida en el contexto o si el contexto esta vacio responde "No lo se".
 
@@ -115,7 +117,7 @@ def get_chat_response(prompt, memory, streaming_callback=None):
 
     llm = get_llm(streaming_callback) 
 
-
+    """
     qa_chain = RetrievalQA.from_chain_type(
         llm,
         #return_source_documents=True,
@@ -123,6 +125,7 @@ def get_chat_response(prompt, memory, streaming_callback=None):
         retriever=retriever
     )
     """
+
     qa = ConversationalRetrievalChain.from_llm(
         llm,
         verbose=True,
@@ -132,6 +135,6 @@ def get_chat_response(prompt, memory, streaming_callback=None):
     qa.combine_docs_chain.llm_chain.prompt = QA_CHAIN_PROMPT
 
     return qa.run({"question": prompt})
-    """
+
     return qa_chain.run({"query": prompt})
 

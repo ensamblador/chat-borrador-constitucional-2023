@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM public.ecr.aws/docker/library/python:3.9-slim
 WORKDIR /app
 ADD .  /app
 RUN pip3 install -r requirements.txt

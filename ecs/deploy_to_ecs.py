@@ -2,18 +2,20 @@ from constructs import Construct
 from aws_cdk import (
     Stack,
     aws_ecs as ecs,
-
-    aws_codepipeline as codepipeline,
-    aws_codepipeline_actions as codepipeline_actions,
     aws_iam as iam,
-    aws_codebuild as codebuild,
     aws_ecs_patterns as ecs_patterns,
+    aws_elasticloadbalancingv2_actions as elb_actions,
+    aws_elasticloadbalancingv2 as elb
 )
 from aws_cdk.aws_ec2 import SecurityGroup, Port, Peer
 
 
+
+# This tutorial uses Route53/ACM to https 
+# https://github.com/MauriceBrg/cognito-alb-fargate-demo/blob/master/infrastructure/demo_stack.py
+
 class ECSDeployWithLoadBalancer(Construct):
-    def __init__(self, scope: Construct, id: str, repo,  cluster, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, repo,  cluster, env={"foo": "bar"}, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         self.ecs_role = iam.Role( self,"Role",
@@ -21,9 +23,10 @@ class ECSDeployWithLoadBalancer(Construct):
             managed_policies=[iam.ManagedPolicy.from_aws_managed_policy_name("AmazonEC2ContainerRegistryPowerUser")],
         )
 
-        task_image_opts = ecs_patterns.ApplicationLoadBalancedTaskImageOptions(
+        self.task_image_opts = ecs_patterns.ApplicationLoadBalancedTaskImageOptions(
             image=ecs.ContainerImage.from_ecr_repository(repo, "latest"),
             container_port=8501,
+            environment=env,
             container_name="streamlit-chat",
             task_role=self.ecs_role
         )
@@ -31,13 +34,16 @@ class ECSDeployWithLoadBalancer(Construct):
 
         ecs_deployment = ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
-            "Service",
+            "app",
             cluster=cluster,
             memory_limit_mib=1024,
             cpu=512,
-            task_image_options=task_image_opts,
+            task_image_options=self.task_image_opts,
         )
         self.service = ecs_deployment.service
+
+
+
 
 
 class ECSDeployWithPublicIP(Construct):

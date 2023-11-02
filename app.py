@@ -12,7 +12,7 @@ TAGS = {
 }
 
 app = cdk.App()
-stk = StreamlitServiceStack(app, "ConstitucionChat")
+stk = StreamlitServiceStack(app, "C2023")
 
 if TAGS.keys():
     for k in TAGS.keys():

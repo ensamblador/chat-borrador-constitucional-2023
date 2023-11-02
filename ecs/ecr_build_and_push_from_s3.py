@@ -50,6 +50,7 @@ class ECRBuildAndPushFromS3(Construct):
             privileged=True,
             build_image=codebuild.LinuxBuildImage.AMAZON_LINUX_2_5,
         )
+        
         codebuild_buildspec = codebuild.BuildSpec.from_asset(buildspec_location)
 
         source_stage = codepipeline.StageProps(
