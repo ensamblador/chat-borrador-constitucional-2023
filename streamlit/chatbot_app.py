@@ -28,7 +28,7 @@ if not is_logged_in:
 def logout():
     authenticator.logout()
 
-st.markdown("## Chatea con el Borrador de Constitucion") #page title
+st.markdown("## Chatea con la Propuesta de Constitucion") #page title
 
 with st.sidebar:
     st.button("Logout", "logout_btn", on_click=logout)

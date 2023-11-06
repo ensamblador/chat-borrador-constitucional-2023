@@ -18,7 +18,7 @@ model_kwargs = {
     "stop_sequences": ["Human:"]
 }
 
-default_model_id = "anthropic.claude-v2"
+default_model_id = "anthropic.claude-instant-v1"
 bedrock_base_kwargs = dict(model_id=default_model_id, model_kwargs= model_kwargs)
 # react_agent_llm = Bedrock(**bedrock_base_kwargs)
 
@@ -26,7 +26,7 @@ bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v1")
 
 persist_directory = 'docs/chroma/'
 vectordb = Chroma(persist_directory=persist_directory, embedding_function=bedrock_embeddings)
-retriever=vectordb.as_retriever(search_type = "mmr",  search_kwargs={"k": 10})
+retriever=vectordb.as_retriever(search_type = "mmr",  search_kwargs={"k": 15})
 
 # compressor = LLMChainExtractor.from_llm(react_agent_llm)
 # compression_retriever = ContextualCompressionRetriever(base_compressor=compressor, base_retriever=retriever)
@@ -73,8 +73,7 @@ promp_template = """
 Responde a la siguiente pregunta tan preciso como sea posible empleando el contexto encerrado por ##. 
 Las preguntas tienen que ver con la nueva propuesta constucional a votarse el 17 de Diciembre de 2023, 
 Los documentos de contexto provienen de la propuesta  https://www.procesoconstitucional.cl/wp-content/uploads/2023/11/Propuesta-Nueva-Constitucion.pdf
-Indica el capitulo y articulo que utilizaste para responder. Estos se ubican al inicio de cada extracto (por ejemplo capitulo X: Titulo articulo n)
-
+Indica el capitulo y articulo que utilizaste para responder. Estos se ubican al inicio de cada extracto en formato JSON (con atributos capitulo,nombre_capitulo,articulo, numeral)
 Nunca tomes una posición sobre aprobar o rechazar el borrador, invita al usuario a leer el borrador y formar su propia opinión informada.
 
 Si la respuesta no esta contenida en el contexto o si el contexto esta vacio responde "No lo se".
