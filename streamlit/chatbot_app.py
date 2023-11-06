@@ -34,9 +34,8 @@ with st.sidebar:
     st.button("Logout", "logout_btn", on_click=logout)
 
 
-
 st.sidebar.markdown("""# Hola
-Este es un chatbot que utiliza técnicas de Inteligencia Artificial para consultar el [borrador constitucional](https://www.procesoconstitucional.cl/wp-content/uploads/2023/10/Texto-aprobado-Consejo-Constitucional_06.10.23.pdf)
+Este es un chatbot que utiliza técnicas de Inteligencia Artificial para consultar la [Propuesta constitucional](https://www.procesoconstitucional.cl/wp-content/uploads/2023/11/Propuesta-Nueva-Constitucion.pdf)
 y responder las preguntas realizadas por ti. 
 
 Intenta hacer preguntas de tu interés. Revisa el página, artículo y letra mencionado en profundidad. Recuerda que este chabot no tiene una postura (a favor o encontra) respecto al texto, 

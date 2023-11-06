@@ -6,7 +6,7 @@ from langchain.retrievers.document_compressors import LLMChainExtractor
 from langchain.chains import RetrievalQA
 
 
-from langchain.memory import ConversationSummaryBufferMemory
+from langchain.memory import ConversationSummaryBufferMemory,ConversationSummaryMemory
 from langchain.llms.bedrock import Bedrock
 
 from langchain.prompts import PromptTemplate
@@ -34,7 +34,7 @@ retriever=vectordb.as_retriever(search_type = "mmr",  search_kwargs={"k": 10})
 
 template = """
 You are a constitutional law assitant who answers questions to users (chilean citizens) about the new constitutional draft to be voted in december 17th 2023.
-(when asked for the source, provide the following link https://www.procesoconstitucional.cl/wp-content/uploads/2023/10/Texto-aprobado-Consejo-Constitucional_06.10.23.pdf)
+(when asked for the source, provide the following link https://www.procesoconstitucional.cl/wp-content/uploads/2023/11/Propuesta-Nueva-Constitucion.pdf)
 Use the following pieces of context to answer the question at the end. Provide page number, article and letter if it is part of the answer. 
 Don't use other sources of information outside that was provided as context. Don't user your prior knowledge about laws. Don't make up the answer using your intrinsic knowledge.
 If you don't know the answer, please propose a new question rephrasing, don't try to make up an answer. 
@@ -50,7 +50,7 @@ Helpful Answer:"""
 template = """
 
 Eres un asistente de derecho constitucional que responde preguntas a los usuarios (ciudadanos chilenos) sobre el documento borrador constitucional a votarse el 17 de diciembre de 2023.
-(cuando se le solicite la fuente, proporcione el siguiente enlace https://www.procesoconstitucional.cl/wp-content/uploads/2023/10/Texto-aprobado-Consejo-Constitucional_06.10.23.pdf)
+(cuando se le solicite la fuente, proporcione el siguiente enlace https://www.procesoconstitucional.cl/wp-content/uploads/2023/11/Propuesta-Nueva-Constitucion.pdf)
 
 Utilice las siguientes piezas de contexto encerradas en triple hashtag para responder la pregunta al final.
 
@@ -70,9 +70,10 @@ Helpful Answer:"""
 
 
 promp_template = """
-Responde a la siguiente pregunta tan preciso como sea posible empleando el contexto encerrado por ##, 
+Responde a la siguiente pregunta tan preciso como sea posible empleando el contexto encerrado por ##. 
 Las preguntas tienen que ver con la nueva propuesta constucional a votarse el 17 de Diciembre de 2023, 
-Los documentos de contexto provienen del borrador  https://www.procesoconstitucional.cl/wp-content/uploads/2023/10/Texto-aprobado-Consejo-Constitucional_06.10.23.pdf
+Los documentos de contexto provienen de la propuesta  https://www.procesoconstitucional.cl/wp-content/uploads/2023/11/Propuesta-Nueva-Constitucion.pdf
+Indica el capitulo y articulo que utilizaste para responder. Estos se ubican al inicio de cada extracto (por ejemplo capitulo X: Titulo articulo n)
 
 Nunca tomes una posición sobre aprobar o rechazar el borrador, invita al usuario a leer el borrador y formar su propia opinión informada.
 
@@ -108,6 +109,11 @@ def get_memory():
     memory = ConversationSummaryBufferMemory(
         return_messages=True,
         llm=llm, max_token_limit=1024, ai_prefix="A", human_prefix="H", memory_key="chat_history")
+    memory = ConversationSummaryMemory(
+        return_messages=True,
+        llm=llm, max_token_limit=512, ai_prefix="A", human_prefix="H", memory_key="chat_history")
+    
+
     return memory
 
 
@@ -116,16 +122,16 @@ def get_chat_response(prompt, memory, streaming_callback=None):
     
 
     llm = get_llm(streaming_callback) 
-
     """
     qa_chain = RetrievalQA.from_chain_type(
         llm,
         #return_source_documents=True,
         verbose=True, 
+        memory=memory,
         retriever=retriever
     )
-    """
 
+    """
     qa = ConversationalRetrievalChain.from_llm(
         llm,
         verbose=True,
@@ -135,6 +141,6 @@ def get_chat_response(prompt, memory, streaming_callback=None):
     qa.combine_docs_chain.llm_chain.prompt = QA_CHAIN_PROMPT
 
     return qa.run({"question": prompt})
-
+    
     return qa_chain.run({"query": prompt})
 
