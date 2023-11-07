@@ -36,8 +36,8 @@ class ECSDeployWithLoadBalancer(Construct):
             self,
             "app",
             cluster=cluster,
-            memory_limit_mib=1024,
-            cpu=512,
+            memory_limit_mib=2048,
+            cpu=1024,
             task_image_options=self.task_image_opts,
         )
         self.service = ecs_deployment.service
