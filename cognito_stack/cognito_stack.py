@@ -37,12 +37,6 @@ class UserPool(Construct):
             generate_secret=True)
         
         
-        '''
-        export POOL_ID="us-east-1_SVOIfyzw8"
-        export APP_CLIENT_ID="7p8e9il0u2o2hqr8ncogvu6vva"
-        export APP_CLIENT_SECRET="1gc3489h0c5o3acdr8aaavtsrma5cdklj7csnr20kgf2et7ai1l0"
-        '''
-
         self.pool_id = self.user_pool.user_pool_id
         self.app_client_id = self.user_pool_client.user_pool_client_id
         self.app_client_secret = self.user_pool_client.user_pool_client_secret.unsafe_unwrap()
